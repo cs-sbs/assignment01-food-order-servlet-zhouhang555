@@ -2,13 +2,48 @@ package cs.sbs.web.servlet;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
+import cs.sbs.web.model.Order;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class OrderDetailServlet extends HttpServlet {
 
+    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        resp.getWriter().println("TODO: order detail");
+        resp.setContentType("text/plain; charset=UTF-8");
+        PrintWriter out = resp.getWriter();
+
+        String pathInfo = req.getPathInfo();
+
+        if (pathInfo == null || pathInfo.isEmpty() || pathInfo.equals("/")) {
+            out.println("Error: order ID is required");
+            return;
+        }
+
+        String orderIdStr = pathInfo.substring(1);
+
+        int orderId;
+        try {
+            orderId = Integer.parseInt(orderIdStr);
+        } catch (NumberFormatException e) {
+            out.println("Error: invalid order ID");
+            return;
+        }
+
+        Order order = OrderCreateServlet.findOrderById(orderId);
+
+        if (order == null) {
+            out.println("Error: order not found");
+            return;
+        }
+
+        out.println("Order Detail");
+        out.println();
+        out.println("Order ID: " + order.getId());
+        out.println("Customer: " + order.getCustomer());
+        out.println("Food: " + order.getFood());
+        out.println("Quantity: " + order.getQuantity());
     }
 }
